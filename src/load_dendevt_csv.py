@@ -56,6 +56,7 @@ def load_dendevt_csv(fpath):
             "Elec_distance",
         ],
         axis=1,
+        errors="ignore", # would throw error if any unneeded columns are already not there.
     )
 
     dspk_df = dspk_df.reset_index()
