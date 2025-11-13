@@ -28,14 +28,22 @@ def load_spike_h5(fpath):
     ----------
 
     """
-    spikes = h5py.File(fpath, "r")
-    spk_t = np.array(spikes["spikes"]["biophysical"]["timestamps"])
+    try: # original loading
+        spikes = h5py.File(fpath, "r")
+        spk_t = np.array(spikes["spikes"]["biophysical"]["timestamps"])
 
-    # Convert spike times to integers and sort
-    # assumes times are in ms and simulation had 10 kHz sample rate
-    spk_t = np.sort(np.round(spk_t * 10).astype(int))
+        # Convert spike times to integers and sort
+        # assumes times are in ms and simulation had dt = 0.1 ms (10 kHz sampling rate)
+        spk_t = np.sort(np.round(spk_t * 10).astype(int))
 
-    return spk_t
+        return spk_t
+    except: # load from pipeline (other users would need to update the path)
+        import sys
+        sys.path.append("/home/drfrbc/Neural-Modeling/")
+        from Modules import analysis
+        spk_t = np.sort((analysis.DataReader.read_data(fpath, "soma_spikes")[0][:] * 10).astype(int))
+        return spk_t
+
 
 
 if __name__ == "__main__":
